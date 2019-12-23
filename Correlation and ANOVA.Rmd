@@ -1,0 +1,273 @@
+---
+title: "ANOVA and Correlation"
+author: "Suhail Shaikh"
+date: "12/22/2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+Q.1) Perform the Univariate Analysis of all the variables in the dataset.
+```{r a}
+setwd("C:\\Users\\shaik\\Desktop\\projects data mining\\General\\Correlation and ANOVA")
+load("Correlation and ANOVA.RData")
+
+head(emp_performance)
+str(emp_performance)
+
+#1.Variable name-accuracy
+library(psych)
+summary(emp_performance$accuracy)
+describe(emp_performance$accuracy)
+#Here in accuracy mean is equal to median and sd is very small compared to the mean Hence Accuracy seems to have normally distributed. Lets check with the plots
+hist(emp_performance$accuracy,probability=T,col=c("steelblue", "red"))
+lines(density(emp_performance$accuracy),col="black",lwd=3)
+#The histogram shows that the accuracy is normally distributed
+
+boxplot(emp_performance$accuracy)
+#Boxplot shows that there are some outliers in the variable accuracy.
+
+#Hence the accuracy is normaly distributed with some outliers in the data.
+
+#2.Variable name-actual_prod
+library(psych)
+summary(emp_performance$actual_prod)
+describe(emp_performance$actual_prod)
+#Here in actual_prod mean is roughly equal to median and sd is very small compared to the mean Hence actual_prod seems to have  normally distributed. Lets check with the plots
+
+hist(emp_performance$actual_prod,probability=T,col=c("steelblue", "red"))
+lines(density(emp_performance$actual_prod),col="black",lwd=3)
+#The histogram shows that the it is right skew
+
+boxplot(emp_performance$actual_prod)
+#Boxplot shows that there are some outliers in the variable accuracy.
+
+#Hence the actual_prod is normaly distributed with some outliers in the data.
+
+#68 Test
+mean(emp_performance$actual_prod)+sd(emp_performance$actual_prod)
+mean(emp_performance$actual_prod)-sd(emp_performance$actual_prod)
+nrow(emp_performance[which(emp_performance$actual_prod < mean(emp_performance$actual_prod)+sd(emp_performance$actual_prod) & emp_performance$actual_prod > mean(emp_performance$actual_prod)-sd(emp_performance$actual_prod)),]) /nrow(emp_performance)
+#Above test satisfy as approximately 68 percent of data lies within 1 sd from the mean.
+
+#95 test
+nrow(emp_performance[which(emp_performance$actual_prod <  mean(emp_performance$actual_prod)+2*sd(emp_performance$actual_prod)  & emp_performance$actual_prod >  mean(emp_performance$actual_prod)-2*sd(emp_performance$actual_prod) ),]) /nrow(emp_performance)
+#Above test satisfy as approximately 95 percent of data lies within 2 sd from the mean.
+
+#99.7 test
+nrow(emp_performance[which(emp_performance$actual_prod < mean(emp_performance$actual_prod)+3*sd(emp_performance$actual_prod) & emp_performance$actual_prod > mean(emp_performance$actual_prod)-3*sd(emp_performance$actual_prod)),]) /nrow(emp_performance)
+#Above test satisfy as approximately 99.7 percent of data lies within 3 sd from the mean.
+
+#Since all aove test roughly satisfy actual_prod  is roughly normally distributed with some outliers.
+
+
+#3.Variable name-target_prod
+library(psych)
+summary(emp_performance$target_prod)
+describe(emp_performance$target_prod)
+#Here in target_prod mean is greater than the median. Hence target_prod seems to not have  normally distributed. Lets check with the plots
+hist(emp_performance$target_prod,probability=T,col=c("steelblue", "red"))
+lines(density(emp_performance$target_prod),col="black",lwd=3)
+#The histogram shows that the it is not normally distributed
+
+boxplot(emp_performance$target_prod)
+#Boxplot shows that there is left skew in the data
+
+#4.Variable name-season
+# Examine the data 
+stab<- table(emp_performance$season)
+addmargins(stab)
+ptab<-prop.table(stab)
+round(ptab,2)
+addmargins(round(ptab,2))
+#It shows that out of entire data we have maximum data for the season Fall and leaset data for summer season
+
+# Plot the data 
+dev.off() 
+barplot(ptab, col=c("orange", "gray","blue","red"))
+legend("topright", c("summer", "winter","spring","Fall"), lty=1,lwd=4, col=c("orange", "gray","blue","red"), cex=0.7)
+
+
+#4.Variable name-type
+# Examine the data 
+stab<- table(emp_performance$type)
+addmargins(stab)
+ptab<-prop.table(stab)
+round(ptab,2)
+addmargins(round(ptab,2))
+#It shows that out of entire data we have 66% data for type local and 34% data for type Remote
+
+# Plot the data 
+dev.off() 
+barplot(ptab, col=c("orange", "gray"))
+legend("topright", c("Local", "Remote"), lty=1,lwd=4, col=c("orange", "gray"), cex=0.7)
+
+
+#4.Variable name-work_area
+# Examine the data 
+stab<- table(emp_performance$work_area)
+addmargins(stab)
+ptab<-prop.table(stab)
+round(ptab,2)
+addmargins(round(ptab,2))
+#It shows that out of entire data we have 22% data for workarea using Spanish and 32% data for workarea using  English and 46% data have workarea using Other language
+
+# Plot the data 
+dev.off() 
+barplot(ptab, col=c("orange", "gray","blue"))
+legend("topright", c("Spanish", "English","Other"), lty=1,lwd=4, col=c("orange", "gray","blue"), cex=0.7)
+
+```
+
+
+
+
+Q.2) Analyze the relatioship of all the numeric variables in the dataset with Accuracy
+```{r b}
+
+#Examining Relation between accuracy and actual_prod
+plot(emp_performance$accuracy~emp_performance$actual_prod, pch=16, col="lightblue", main="Relationship between accuracy and actual_prod")
+abline(lm(emp_performance$accuracy~emp_performance$actual_prod), lwd=3, col="red") 
+# Looks like there is a strong positive correlation between accuracy and actual_prod
+
+# Now, let's get a numeric value for the correlation 
+cor(emp_performance$accuracy,emp_performance$actual_prod, use="complete.obs") 
+#It shows that correlation coefficient is 0.688. So there is positive correlation between accuracy and actual_prod
+
+
+#Examining Relation between accuracy and target_prod
+plot(emp_performance$accuracy~emp_performance$target_prod, pch=16, col="lightblue", main="Relationship between accuracy and target_prod")
+abline(lm(emp_performance$accuracy~emp_performance$target_prod), lwd=3, col="red") 
+# Looks like there is no correlation between accuracy and target_prod
+
+# Now, let's get a numeric value for the correlation 
+cor(emp_performance$accuracy,emp_performance$target_prod, use="complete.obs") 
+#It shows that correlation coefficient is 0.01022798 which is very less So there is no correlation between accuracy and target_prod
+
+
+#Examining Relation between actual_prod and target_prod
+plot(emp_performance$actual_prod~emp_performance$target_prod, pch=16, col="lightblue", main="Relationship between actual_prod  and target_prod")
+abline(lm(emp_performance$actual_prod~emp_performance$target_prod), lwd=3, col="red") 
+# Looks like there is no correlation between actual_prod and target_prod
+
+#The plot shows that target_prod should be a factor variable with different levels and not the numeric variable
+
+str(emp_performance$target_prod)
+emp_performance$target_prod <- as.factor(emp_performance$target_prod)
+str(emp_performance$target_prod)
+boxplot(accuracy~target_prod, data=emp_performance, col=2:4, xlab="Season")
+
+#Ho-there is no difference in levels of target_prod
+#Ha-there is difference in levels of target_prod
+emp_accuracy_target_prod.aov <- aov(accuracy~target_prod, data=emp_performance)
+emp_accuracy_target_prod.aov
+summary(emp_accuracy_target_prod.aov) 
+#Since p-value is 0.00538 which is less than 0.05 (at 95% confidence interval) we reject the NULL hypothesis.
+#Hence there is difference in levels of target_prod i.e. There is statistical significance between accuracy and target_prod
+
+#Correlation Matrix
+emp_performance_1 <- emp_performance[,c("accuracy", "actual_prod")]
+cormat <- cor(emp_performance_1) 
+round(cormat, 2)
+
+# scatterplots
+pairs(emp_performance_1)
+
+library(car)
+scatterplotMatrix(~accuracy+actual_prod, data=emp_performance_1, main="Correlations of Numeric Variables in emp_performance")
+
+#So only accuracy and actual_prod have significant positive correlation.
+#And hence actual_prod is related to accuracy
+
+#Important finding-target_prod should be a factor variable with different levels and not the numeric variable
+
+```
+
+
+
+
+Q.3) Analyze the relationship of all the categorical variables in the dataset with the variable accuracy
+```{r c}
+#Relationship between accuracy and season
+
+#Bivariate Analysis between accuracy and season
+library(dplyr)
+emp_performance %>% group_by(season) %>% summarise(avg = mean(accuracy), med=median(accuracy),std = sd(accuracy)) 
+# There is no considerable differences between average of summer and winter.Average accuracy for summer is 0.504 and for winter is 0.503
+#Also there is not much difference between average accuracy for Spring and Fall.
+
+
+# Visualizing the data for relation between accuracy and season
+boxplot(accuracy~season, data=emp_performance, col=2:4, xlab="Season")
+#It shows that median accuracy for summer is highest followed by Winter, Fall and least for spring season
+
+# checking confidence interval with Plots means
+gplots::plotmeans(emp_performance$accuracy~emp_performance$season, xlab="season", ylab="accuracy", lwd=3, col="black", p=0.99)
+#plotmeans shows that there may not be stistical difference among all seasons. 
+
+#Now since the independent variable is factor and Dependent variable is numeric we can use ANOVA or linear regression. 
+#But advantage of using the ANOVA is Tukeyplot's post hoc test provides information about the difference among the different levels of season.
+
+#Ho-there is no difference in levels of season
+#Ha-there is difference in levels of season
+emp_accuracy_season.aov <- aov(accuracy~season, data=emp_performance)
+emp_accuracy_season.aov
+summary(emp_accuracy_season.aov) 
+#Since p-value is 0.377 which is greater than 0.05 (at 95% confidence interval) we cannot reject the NULL hypothesis.
+#Hence there is no difference in levels of season i.e. There is no statistical significance between accuracy and season
+
+
+#Relationship between accuracy and type
+
+#Bivariate Analysis between accuracy and type
+library(dplyr)
+emp_performance %>% group_by(type) %>% summarise(avg = mean(accuracy), med=median(accuracy),std = sd(accuracy)) 
+# There is considerable differences between average of local and Remote employees. accuracy for Local employees is 0.466 and for Remote employees is 0.527
+
+# Visualizing the data for relation between accuracy and type
+boxplot(accuracy~type, data=emp_performance, col=2:4, xlab="type")
+#It shows that median accuracy for remote employees is higher than Local employees. Also IQR for Local emp is more than Remote emp.
+
+# checking confidence interval with Plots means
+gplots::plotmeans(emp_performance$accuracy~emp_performance$type, xlab="type", ylab="accuracy", lwd=3, col="black", p=0.99)
+#plotmeans shows that there may be stistical difference among Local and Remote employees. 
+
+#Now since the independent variable is factor and Dependent variable is numeric we can use ANOVA or linear regression. 
+#But advantage of using the ANOVA is Tukeyplot's post hoc test provides information about the difference among the different levels of season.
+
+#Ho-there is no difference in levels of type (local employees and remote employees)
+#Ha-there is difference in levels of type((local and remote))
+emp_accuracy_type.aov <- aov(accuracy~type, data=emp_performance)
+emp_accuracy_type.aov
+summary(emp_accuracy_type.aov) 
+#Since p-value is 0.00534 which is less than 0.05 (at 95% confidence interval) we reject the NULL hypothesis.
+#Hence there is difference in levels of type (local employees and remote employees)i.e. There is statistical significance between accuracy and type
+
+
+#Relationship between accuracy and work_area
+
+#Bivariate Analysis between accuracy and work_area
+library(dplyr)
+emp_performance %>% group_by(work_area) %>% summarise(avg = mean(accuracy), med=median(accuracy),std = sd(accuracy)) 
+# There is considerable differences between average of levels of work_area. Average accuracy for wowork_area with Spanish is 0.457 , average accuracyfor English  is 0.488 and for Other is 0.5
+
+# Visualizing the data for relation between accuracy and work_area
+boxplot(accuracy~work_area, data=emp_performance, col=2:4, xlab="work_area")
+#It shows that median accuracy for English is highest followed by Other and then Spanish. Also IQR for other is least
+
+# checking confidence interval with Plots means
+gplots::plotmeans(emp_performance$accuracy~emp_performance$work_area, xlab="work_area", ylab="accuracy", lwd=3, col="black", p=0.99)
+#plotmeans shows that there may not be stistical difference among Local and Remote employees. 
+
+#Now since the independent variable is factor and Dependent variable is numeric we can use ANOVA or linear regression. 
+#But advantage of using the ANOVA is Tukeyplot's post hoc test provides information about the difference among the different levels of season.
+
+#Ho-there is no difference in levels of work_area
+#Ha-there is difference in levels of work_area
+emp_accuracy_workarea.aov <- aov(accuracy~work_area, data=emp_performance)
+emp_accuracy_workarea.aov
+summary(emp_accuracy_workarea.aov) 
+#Since p-value is 0.277 which is greater than 0.05 (at 95% confidence interval) we cannot reject the NULL hypothesis.
+#Hence there is no difference in levels of work_area (Spanish,English and Other)i.e. There is no statistical significance between accuracy and work_area
+
+```
